@@ -1,10 +1,10 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
+namespace Omnipay\Epg\Message\Request;
 
 /**
  * Class VerifyEnrollmentRequest
- * @package Omnipay\Arca\Message
+ * @package Omnipay\Epg\Message
  */
 class VerifyEnrollmentRequest extends AbstractRequest
 {

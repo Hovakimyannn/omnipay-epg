@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
+namespace Omnipay\Epg\Message\Request;
 
 class GetBindingsRequest extends AbstractBindingAwareRequest
 {

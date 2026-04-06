@@ -1,94 +1,105 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
+namespace Omnipay\Epg\Message\Request;
 
-
-/**
- * Class RegisterRequest
- * @package Omnipay\Arca\Message
- */
 class RegisterRequest extends AbstractRequest
 {
-    /**
-     * @return mixed
-     */
     public function getPageView()
     {
         return $this->getParameter('pageView');
     }
 
-    /**
-     * Set the request PageView.
-     * << MOBILE or DESKTOP >>
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setPageView($value) : RegisterRequest
+    public function setPageView($value): static
     {
         return $this->setParameter('pageView', $value);
     }
 
-    /**
-     * @return mixed
-     */
     public function getClientId()
     {
         return $this->getParameter('clientId');
     }
 
-    /**
-     * Set the request clientId.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setClientId($value)
+    public function setClientId($value): static
     {
         return $this->setParameter('clientId', $value);
     }
 
-    /**
-     * @return mixed
-     */
     public function getTimeout()
     {
         return $this->getParameter('sessionTimeoutSecs');
     }
 
-    /**
-     * Set the request sessionTimeoutSecs.
-     *
-     * @param string $value < 1200 Second (20minute)
-     *
-     * @return $this
-     */
-    public function setTimeout($value)
+    public function setTimeout($value): static
     {
         return $this->setParameter('sessionTimeoutSecs', $value);
     }
 
     /**
-     * Prepare data to send
-     *
-     * @return array|mixed
-     * @throws \Omnipay\Common\Exception\InvalidRequestException
+     * EPG `features` parameter.
+     * Accepted values: FORCE_SSL | FORCE_TDS
      */
-    public function getData() : array
+    public function getFeatures()
+    {
+        return $this->getParameter('features');
+    }
+
+    public function setFeatures($value): static
+    {
+        return $this->setParameter('features', $value);
+    }
+
+    public function getFailUrl()
+    {
+        return $this->getParameter('failUrl');
+    }
+
+    public function setFailUrl($value): static
+    {
+        return $this->setParameter('failUrl', $value);
+    }
+
+    public function getEmail()
+    {
+        return $this->getParameter('email');
+    }
+
+    public function setEmail($value): static
+    {
+        return $this->setParameter('email', $value);
+    }
+
+    public function getPhone()
+    {
+        return $this->getParameter('phone');
+    }
+
+    public function setPhone($value): static
+    {
+        return $this->setParameter('phone', $value);
+    }
+
+    public function getPaymentWay()
+    {
+        return $this->getParameter('paymentWay');
+    }
+
+    public function setPaymentWay($value): static
+    {
+        return $this->setParameter('paymentWay', $value);
+    }
+
+    public function getData(): array
     {
         $this->validate('transactionId', 'amount', 'returnUrl');
 
         $data = parent::getData();
 
         $data['orderNumber'] = $this->getTransactionId();
-        $data['amount'] = $this->getAmountInteger();
-        $data['returnUrl'] = $this->getReturnUrl();
-        $data['jsonParams'] = json_encode(["FORCE_3DS2" => true]);
+        $data['amount']      = $this->getAmountInteger();
+        $data['returnUrl']   = $this->getReturnUrl();
 
         if ($this->getCurrency()) {
-            $data['currency'] = str_pad($this->getCurrencyNumeric(), 3, 0, STR_PAD_LEFT);
+            $data['currency'] = str_pad($this->getCurrencyNumeric(), 3, '0', STR_PAD_LEFT);
         }
 
         if ($this->getDescription()) {
@@ -115,13 +126,30 @@ class RegisterRequest extends AbstractRequest
             $data['sessionTimeoutSecs'] = $this->getTimeout();
         }
 
+        if ($this->getFeatures()) {
+            $data['features'] = $this->getFeatures();
+        }
+
+        if ($this->getFailUrl()) {
+            $data['failUrl'] = $this->getFailUrl();
+        }
+
+        if ($this->getEmail()) {
+            $data['email'] = $this->getEmail();
+        }
+
+        if ($this->getPhone()) {
+            $data['phone'] = $this->getPhone();
+        }
+
+        if ($this->getPaymentWay()) {
+            $data['paymentWay'] = $this->getPaymentWay();
+        }
+
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
         return $this->getUrl() . '/register.do';
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
+namespace Omnipay\Epg\Message\Request;
 
 abstract class AbstractBindingAwareRequest extends AbstractRequest
 {
@@ -12,7 +12,7 @@ abstract class AbstractBindingAwareRequest extends AbstractRequest
     /**
      * @param string $value
      *
-     * @return \Omnipay\Arca\Message\Request\AbstractBindingAwareRequest
+     * @return \Omnipay\Epg\Message\Request\AbstractBindingAwareRequest
      */
     public function setBindingId(string $value) : AbstractBindingAwareRequest
     {
@@ -36,7 +36,7 @@ abstract class AbstractBindingAwareRequest extends AbstractRequest
      *
      * @param string|int $value
      *
-     * @return \Omnipay\Arca\Message\Request\AbstractBindingAwareRequest
+     * @return \Omnipay\Epg\Message\Request\AbstractBindingAwareRequest
      */
     public function setClientId(string|int $value) : AbstractBindingAwareRequest
     {

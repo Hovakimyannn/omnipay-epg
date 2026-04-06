@@ -1,92 +1,61 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
+namespace Omnipay\Epg\Message\Request;
 
-/**
- * Class RegisterPreAuthRequest
- * @package Omnipay\Arca\Message
- */
 class RegisterPreAuthRequest extends AbstractRequest
 {
-    /**
-     * @return mixed
-     */
     public function getPageView()
     {
         return $this->getParameter('pageView');
     }
 
-    /**
-     * Set the request PageView.
-     * << MOBILE or DESKTOP >>
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setPageView(string $value) : RegisterPreAuthRequest
+    public function setPageView(string $value): static
     {
         return $this->setParameter('pageView', $value);
     }
 
-    /**
-     * @return mixed
-     */
     public function getClientId()
     {
         return $this->getParameter('clientId');
     }
 
-    /**
-     * Set the request clientId.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setClientId($value)
+    public function setClientId($value): static
     {
         return $this->setParameter('clientId', $value);
     }
 
-    /**
-     * @return mixed
-     */
     public function getTimeout()
     {
         return $this->getParameter('sessionTimeoutSecs');
     }
 
-    /**
-     * Set the request sessionTimeoutSecs.
-     *
-     * @param string $value < 1200 Second (20minute)
-     *
-     * @return $this
-     */
-    public function setTimeout($value)
+    public function setTimeout($value): static
     {
         return $this->setParameter('sessionTimeoutSecs', $value);
     }
 
-    /**
-     * Prepare data to send
-     *
-     * @return array|mixed
-     * @throws \Omnipay\Common\Exception\InvalidRequestException
-     */
-    public function getData() : array
+    public function getFailUrl()
+    {
+        return $this->getParameter('failUrl');
+    }
+
+    public function setFailUrl($value): static
+    {
+        return $this->setParameter('failUrl', $value);
+    }
+
+    public function getData(): array
     {
         $this->validate('transactionId', 'amount', 'returnUrl');
 
         $data = parent::getData();
 
         $data['orderNumber'] = $this->getTransactionId();
-        $data['amount'] = $this->getAmount();
-        $data['returnUrl'] = $this->getReturnUrl();
+        $data['amount']      = $this->getAmountInteger();
+        $data['returnUrl']   = $this->getReturnUrl();
 
         if ($this->getCurrency()) {
-            $data['currency'] = str_pad($this->getCurrencyNumeric(), 3, 0, STR_PAD_LEFT);
+            $data['currency'] = str_pad($this->getCurrencyNumeric(), 3, '0', STR_PAD_LEFT);
         }
 
         if ($this->getDescription()) {
@@ -113,13 +82,14 @@ class RegisterPreAuthRequest extends AbstractRequest
             $data['sessionTimeoutSecs'] = $this->getTimeout();
         }
 
+        if ($this->getFailUrl()) {
+            $data['failUrl'] = $this->getFailUrl();
+        }
+
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
         return $this->getUrl() . '/registerPreAuth.do';
     }

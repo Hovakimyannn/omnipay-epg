@@ -1,12 +1,10 @@
 <?php
 
-namespace Omnipay\Arca\Message\Request;
-
-use Omnipay\Arca\Message\AbstractRequest;
+namespace Omnipay\Epg\Message\Request;
 
 /**
  * Class ReverseRequest
- * @package Omnipay\Arca\Message
+ * @package Omnipay\Epg\Message
  */
 class ReverseRequest extends AbstractRequest
 {

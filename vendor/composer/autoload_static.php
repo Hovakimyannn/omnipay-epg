@@ -43,8 +43,8 @@ class ComposerStaticInita70d1441d678b2ab132875511c8c942e
         'O' => 
         array (
             'Omnipay\\Tests\\' => 14,
+            'Omnipay\\Epg\\' => 12,
             'Omnipay\\Common\\' => 15,
-            'Omnipay\\Arca\\' => 13,
         ),
         'M' => 
         array (
@@ -132,13 +132,13 @@ class ComposerStaticInita70d1441d678b2ab132875511c8c942e
         array (
             0 => __DIR__ . '/..' . '/omnipay/tests/src',
         ),
+        'Omnipay\\Epg\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
         'Omnipay\\Common\\' => 
         array (
             0 => __DIR__ . '/..' . '/omnipay/common/src/Common',
-        ),
-        'Omnipay\\Arca\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src',
         ),
         'Money\\' => 
         array (

@@ -1,17 +1,19 @@
 {
-    "name": "k3rnel/omnipay-arca",
+    "name": "hovakimyannn/omnipay-epg",
     "type": "library",
-    "description": "Arca gateway for Omnipay payment processing library",
+    "description": "SmartVista EPG (E-Commerce Payment Gateway) driver for Omnipay. Supports Arca, and any other EPG-based bank.",
     "keywords": [
         "gateway",
         "merchant",
         "omnipay",
         "pay",
         "payment",
+        "epg",
+        "smartvista",
         "arca",
-        "purchase"
+        "ipay"
     ],
-    "homepage": "https://github.com/k3rnel/omnipay-arca",
+    "homepage": "https://github.com/hovakimyannn/omnipay-epg",
     "license": "MIT",
     "authors": [
         {
@@ -21,7 +23,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Omnipay\\Arca\\": "src/"
+            "Omnipay\\Epg\\": "src/"
         }
     },
     "require": {

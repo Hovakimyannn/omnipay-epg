@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Arca\Message\Response;
+namespace Omnipay\Epg\Message\Response;
 
 use Omnipay\Common\Message\RedirectResponseInterface;
 use Omnipay\Common\Message\AbstractResponse as OmnipayAbstractResponse;

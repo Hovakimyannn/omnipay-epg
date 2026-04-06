@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\Arca\Message\Response;
+namespace Omnipay\Epg\Message\Response;
 
 class BindingPaymentResponse extends AbstractResponse
 {
