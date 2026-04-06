@@ -1,98 +1,220 @@
-# Omnipay: Arca (Armenian Card)
+# Omnipay: SmartVista EPG
 
-**Arca driver for the Omnipay Laravel payment processing library**
+**SmartVista E-Commerce Payment Gateway (EPG)** driver for the [Omnipay](https://omnipay.thephpleague.com/) PHP payment library.
 
-[![Latest Stable Version](https://poser.pugx.org/k3rnel/omnipay-arca/v)](https://packagist.org/packages/k3rnel/omnipay-arca) [![Total Downloads](https://poser.pugx.org/k3rnel/omnipay-arca/downloads)](https://packagist.org/packages/k3rnel/omnipay-arca) [![Latest Unstable Version](https://poser.pugx.org/k3rnel/omnipay-arca/v/unstable)](https://packagist.org/packages/k3rnel/omnipay-arca) [![License](https://poser.pugx.org/k3rnel/omnipay-arca/license)](https://packagist.org/packages/k3rnel/omnipay-arca) [![PHP Version Require](https://poser.pugx.org/k3rnel/omnipay-arca/require/php)](https://packagist.org/packages/k3rnel/omnipay-arca)
+Supports any bank running on SmartVista EPG. Comes with a pre-configured gateway for **Arca / iPay** (`ipay.arca.am`).
 
-[Omnipay](https://github.com/thephpleague/omnipay) is a framework agnostic, multi-gateway payment
-processing library for PHP 5.5+. This package implements Arca support for Omnipay.
+[![Latest Stable Version](https://poser.pugx.org/hovakimyannn/omnipay-epg/v/stable)](https://packagist.org/packages/hovakimyannn/omnipay-epg)
+[![License](https://poser.pugx.org/hovakimyannn/omnipay-epg/license)](https://packagist.org/packages/hovakimyannn/omnipay-epg)
+
+---
 
 ## Installation
 
-Omnipay is installed via [Composer](https://getcomposer.org/). To install, simply add it
-to your `composer.json` file:
+```bash
+composer require hovakimyannn/omnipay-epg
+```
 
-```json
-{
-    "require": {
-        "k3rnel/omnipay-arca": "dev-master"
-    }
+---
+
+## Gateways
+
+| Class | Description |
+|---|---|
+| `Omnipay\Epg\Gateway` | Generic EPG — configure any bank's endpoint |
+| `Omnipay\Epg\ArcaGateway` | Arca / iPay — endpoints pre-configured |
+
+---
+
+## Usage
+
+### Arca / iPay
+
+```php
+use Omnipay\Omnipay;
+
+$gateway = Omnipay::create('Epg\Arca');
+$gateway->setUsername('your_username');
+$gateway->setPassword('your_password');
+// $gateway->setTestMode(true); // use ipaytest.arca.am
+```
+
+### Generic EPG (any bank)
+
+```php
+use Omnipay\Epg\Gateway;
+
+$gateway = new Gateway();
+$gateway->setEndpoint('https://epg.yourbank.am/payment/rest');
+$gateway->setTestEndpoint('https://epg-test.yourbank.am/payment/rest');
+$gateway->setUsername('your_username');
+$gateway->setPassword('your_password');
+```
+
+---
+
+## Supported Operations
+
+### Purchase (one-phase payment)
+
+Registers the order and returns a redirect URL to the bank's hosted payment page.
+
+```php
+$response = $gateway->purchase([
+    'transactionId' => 'ORDER-001',       // your order number
+    'amount'        => '10.00',
+    'currency'      => 'AMD',
+    'returnUrl'     => 'https://yoursite.com/payment/success',
+    'failUrl'       => 'https://yoursite.com/payment/fail',  // optional
+    'description'   => 'Order #001',                         // optional
+    'language'      => 'en',                                 // optional
+    'features'      => 'FORCE_TDS',                          // optional: FORCE_SSL | FORCE_TDS
+])->send();
+
+if ($response->isRedirect()) {
+    // Store $response->getTransactionReference() (EPG orderId) for later status check
+    $orderId = $response->getTransactionReference();
+
+    $response->redirect(); // redirects customer to bank payment page
 }
 ```
 
-And run composer to update your dependencies:
+### Complete Purchase (check payment status after redirect)
 
-    composer update
-
-Or you can simply run
-
-    composer require k3rnel/omnipay-arca
-
-## Basic Usage
-
-1. Use Omnipay gateway class:
+Called after the customer returns from the bank payment page.
 
 ```php
-    use Omnipay\Omnipay;
+$response = $gateway->completePurchase([
+    'transactionId' => $orderId, // the EPG orderId saved during purchase
+])->send();
+
+if ($response->isSuccessful()) {
+    // Payment confirmed — fulfill the order
+} else {
+    echo $response->getMessage();
+}
 ```
 
-2. Initialize Arca gateway:
+### Pre-Auth (two-phase payment)
+
+**Phase 1** — reserve funds:
 
 ```php
+$response = $gateway->registerPreAuth([
+    'transactionId' => 'ORDER-002',
+    'amount'        => '50.00',
+    'currency'      => 'AMD',
+    'returnUrl'     => 'https://yoursite.com/payment/success',
+])->send();
 
-    $gateway = Omnipay::create('Arca');
-    $gateway->setUsername(env('ARCA_USERNAME'));
-    $gateway->setPassword(env('ARCA_PASSWORD'));
-    $gateway->setReturnUrl(env('ARCA_RETURN_URL')); // Return url, that should be point to your arca webhook route
-    $gateway->setLanguage(\App::getLocale()); // Language
-    $gateway->setAmount(10); // Amount to charge
-    $gateway->setTransactionId(XXXX); // Transaction ID from your system
-
+$orderId = $response->getTransactionReference();
 ```
 
-3. Call purchase, it will automatically redirect to Arca's hosted page
+**Phase 2** — confirm (deposit) reserved funds:
 
 ```php
-
-    $purchase = $gateway->purchase()->send();
-    $purchase->redirect();
-
+$response = $gateway->deposit([
+    'transactionId' => $orderId,
+    'amount'        => '50.00',
+])->send();
 ```
 
-4. Create a webhook controller to handle the callback request at your `ARCA_RESULT_URL` and catch the webhook as follows
+### Reverse (cancel / void)
 
 ```php
-
-    $gateway = Omnipay::create('Arca');
-    $gateway->setUsername(env('ARCA_USERNAME'));
-    $gateway->setPassword(env('ARCA_PASSWORD'));
-    
-    $purchase = $gateway->completePurchase()->send();
-    
-    // Do the rest with $purchase and response with 'OK'
-    if ($purchase->isSuccessful()) {
-        
-        // Your logic
-        
-    }
-    
-    return new Response('OK');
-
+$response = $gateway->reverse([
+    'transactionId' => $orderId,
+])->send();
 ```
 
-For general usage instructions, please see the main [Omnipay](https://github.com/thephpleague/omnipay)
-repository.
+### Refund
 
-## Support
+```php
+$response = $gateway->refund([
+    'transactionId' => $orderId,
+    'amount'        => '10.00',
+])->send();
+```
 
-If you are having general issues with Omnipay, we suggest posting on
-[Stack Overflow](https://stackoverflow.com/). Be sure to add the
-[omnipay tag](https://stackoverflow.com/questions/tagged/omnipay) so it can be easily found.
+### Order Status
 
-If you want to keep up to date with release anouncements, discuss ideas for the project,
-or ask more detailed questions, there is also a [mailing list](https://groups.google.com/forum/#!forum/omnipay) which
-you can subscribe to.
+```php
+// Basic status
+$response = $gateway->getOrderStatus([
+    'transactionId' => $orderId,
+])->send();
 
-If you believe you have found a bug, please report it using the [GitHub issue tracker](https://github.com/k3rnel/omnipay-arca/issues),
-or better yet, fork the library and submit a pull request.
-# omnipay-epg
+// Extended status (includes card info, binding info, etc.)
+$response = $gateway->getOrderStatusExtended([
+    'transactionId' => $orderId,
+])->send();
+
+echo $response->getOrderStatus();        // 0–6 (EPG status code)
+echo $response->getTransactionReference();
+print_r($response->getCardAuthInfo());
+```
+
+### Verify Enrollment (3DS check)
+
+```php
+$response = $gateway->verifyEnrollment([
+    'pan' => '4111111111111111',
+])->send();
+```
+
+### Bindings (saved cards)
+
+**Pay with a saved card:**
+
+```php
+$response = $gateway->bindingPayment([
+    'transactionReference' => $orderId,  // mdOrder
+    'bindingId'            => $bindingId,
+    'language'             => 'en',
+])->send();
+```
+
+**Get list of bindings for a customer:**
+
+```php
+$response = $gateway->getBindings([
+    'clientId' => 'customer-123',
+])->send();
+```
+
+---
+
+## Response Methods
+
+| Method | Description |
+|---|---|
+| `isSuccessful()` | `true` if payment is fully deposited |
+| `isRedirect()` | `true` if customer should be redirected to `formUrl` |
+| `getRedirectUrl()` | Hosted payment page URL |
+| `getTransactionReference()` | EPG `orderId` |
+| `getOrderNumberReference()` | Merchant `orderNumber` |
+| `getOrderStatus()` | EPG order status code |
+| `getMessage()` | Error message |
+| `getCode()` | Error code (`0` = success) |
+| `getBindingId()` | Binding ID (if applicable) |
+| `getCardAuthInfo()` | Card info array (masked PAN, expiry, etc.) |
+| `getRequestId()` | `Request-Id` response header |
+
+### Order status codes
+
+| Code | Meaning |
+|---|---|
+| 0 | Registered, not paid |
+| 1 | Pre-authorized (held) |
+| 2 | Deposited (fully paid) ✅ |
+| 3 | Cancelled |
+| 4 | Refunded |
+| 5 | ACS authorization in progress |
+| 6 | Authorization declined |
+
+---
+
+## License
+
+MIT
+
