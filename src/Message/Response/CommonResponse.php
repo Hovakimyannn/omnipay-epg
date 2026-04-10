@@ -26,9 +26,14 @@ class CommonResponse extends AbstractResponse
         return $this->data['OrderNumber'] ?? $this->data['orderNumber'] ?? null;
     }
 
-    public function getOrderStatus()
+    public function getOrderStatus(): ?int
     {
-        return $this->data['orderStatus'] ?? null;
+        return isset($this->data['orderStatus']) ? (int) $this->data['orderStatus'] : null;
+    }
+
+    public function getActionCode(): ?int
+    {
+        return isset($this->data['actionCode']) ? (int) $this->data['actionCode'] : null;
     }
 
     public function getActionCodeDescription(): ?string
@@ -38,12 +43,41 @@ class CommonResponse extends AbstractResponse
 
     public function getBindingId(): ?string
     {
-        return $this->data['bindingInfo']['bindingId'] ?? null;
+        return $this->data['bindingId'] ?? $this->data['bindingInfo']['bindingId'] ?? null;
+    }
+
+    public function getClientId(): ?string
+    {
+        return $this->data['clientId'] ?? $this->data['bindingInfo']['clientId'] ?? null;
     }
 
     public function getCardAuthInfo(): array
     {
         return $this->data['cardAuthInfo'] ?? [];
+    }
+
+    public function getPan(): ?string
+    {
+        return $this->data['cardAuthInfo']['pan'] ?? null;
+    }
+
+    public function getExpiration(): ?string
+    {
+        return $this->data['cardAuthInfo']['expiration'] ?? null;
+    }
+
+    public function getMerchantOrderParams(): array
+    {
+        $params = [];
+        if (isset($this->data['merchantOrderParams']) && is_array($this->data['merchantOrderParams'])) {
+            foreach ($this->data['merchantOrderParams'] as $param) {
+                if (isset($param['name'], $param['value'])) {
+                    $params[$param['name']] = $param['value'];
+                }
+            }
+        }
+
+        return $params;
     }
 
     public function getRequestId(): ?string
