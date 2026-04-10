@@ -146,6 +146,10 @@ class RegisterRequest extends AbstractRequest
             $data['paymentWay'] = $this->getPaymentWay();
         }
 
+        if ($this->getTag()) {
+            $data['tag'] = $this->getTag();
+        }
+
         return $data;
     }
 

@@ -66,6 +66,16 @@ abstract class AbstractRequest extends CommonAbstractRequest
         return $this->setParameter('jsonParams', $value);
     }
 
+    public function getTag()
+    {
+        return $this->getParameter('tag');
+    }
+
+    public function setTag($value): static
+    {
+        return $this->setParameter('tag', $value);
+    }
+
     // -------------------------------------------------------------------------
     // Endpoint resolution — reads from gateway parameters so that
     // any EPG-based bank can be targeted by configuring the Gateway.

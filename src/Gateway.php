@@ -8,6 +8,7 @@ use Omnipay\Epg\Message\Request\GetBindingsRequest;
 use Omnipay\Epg\Message\Request\GetOrderStatusExtendedRequest;
 use Omnipay\Epg\Message\Request\GetOrderStatusRequest;
 use Omnipay\Epg\Message\Request\RefundRequest;
+use Omnipay\Epg\Message\Request\RegisterBindingOrderRequest;
 use Omnipay\Epg\Message\Request\RegisterPreAuthRequest;
 use Omnipay\Epg\Message\Request\RegisterRequest;
 use Omnipay\Epg\Message\Request\ReverseRequest;
@@ -169,6 +170,11 @@ class Gateway extends AbstractGateway
     public function getBindings(array $parameters = []): AbstractRequest
     {
         return $this->createRequest(GetBindingsRequest::class, $parameters);
+    }
+
+    public function registerBindingOrder(array $parameters = []): AbstractRequest
+    {
+        return $this->createRequest(RegisterBindingOrderRequest::class, $parameters);
     }
 
     public function __call($name, $arguments)
